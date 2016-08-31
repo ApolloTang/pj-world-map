@@ -19,7 +19,12 @@ export default function(node) {
     var featureColl = svgContainer.append('g').classed('featureCollection', true);
     var toolTip = el.append('div').text('tool tip');
 
-    featureColl.call(
+
+    // featureColl.call(
+        // must bind zoom to the svg ( like bellow)
+        // not to the group (above), see:
+        // http://bl.ocks.org/cpdean/7a71e687dd5a80f6fd57
+    svgContainer.call(
         d3.behavior.zoom()
         .translate([0, 0])
         .scale(1)
