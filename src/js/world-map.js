@@ -3,8 +3,8 @@ import d3 from 'd3';
 const w_svg = 3000;
 const h_svg = 1800;
 
-var viewBoxMaxX = w_svg;
-var viewBoxMaxY = h_svg;
+const viewBoxMaxX = w_svg;
+const viewBoxMaxY = h_svg;
 
 function zoom(_selection) {
    _selection.attr("transform", "translate("
@@ -13,12 +13,11 @@ function zoom(_selection) {
 }
 
 export default function(node) {
-    var el = d3.select(node)
+    const el = d3.select(node)
 
-    var svgContainer = el.append('svg');
-    var featureColl = svgContainer.append('g').classed('featureCollection', true);
-    var toolTip = el.append('div').text('tool tip');
-
+    const svgContainer = el.append('svg');
+    const featureColl = svgContainer.append('g').classed('featureCollection', true);
+    const toolTip = el.append('div').text('tool tip');
 
     // featureColl.call(
         // must bind zoom to the svg ( like bellow)
@@ -29,7 +28,7 @@ export default function(node) {
         .translate([0, 0])
         .scale(1)
         .scaleExtent([1, 14])
-        .on("zoom", function(){zoom(featureColl)})
+        .on("zoom", ()=>{zoom(featureColl)})
     );
 
     svgContainer
@@ -39,8 +38,8 @@ export default function(node) {
 
     const translation_h = w_svg/2;
     const translation_v = h_svg/2 * 1.1;
-    var aProjection = d3.geo.mercator().scale(480).translate([translation_h,translation_v]);
-    var geoPath = d3.geo.path().projection(aProjection);
+    const projection = d3.geo.mercator().scale(480).translate([translation_h,translation_v]);
+    const geoPath = d3.geo.path().projection(projection);
 
     d3.json("/data/world.geojson", createMap);
 
