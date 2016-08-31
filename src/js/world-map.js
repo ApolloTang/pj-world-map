@@ -5,26 +5,40 @@ const h_svg = 1800;
 
 var viewBoxMaxX = w_svg;
 var viewBoxMaxY = h_svg;
-var selection = {};
 
+function zoom(_node) {
+   _node.attr("transform", "translate("
+       + d3.event.translate
+       + ")scale(" + d3.event.scale + ")");
+}
 
 export default function(node) {
     var el = d3.select(node)
 
-    var svgContainer = el
-        .select('svg')
-        .attr('class', 'd3')
+    var svgContainer = el.append('svg');
+    var featureColl = svgContainer.append('g').classed('featureCollection', true);
+    var toolTip = el.append('div').text('tool tip');
+
+    featureColl.call(
+        d3.behavior.zoom()
+          .scaleExtent([1, 10])
+          .on("zoom", function(){zoom(featureColl)})
+    );
+
+    svgContainer
+        .attr('class', 'd3-world-map')
         .attr('width', '100%').attr('height', '100%')
         .attr('viewBox', '0 0 ' + viewBoxMaxX + ' ' + viewBoxMaxY);
-    selection.svg = svgContainer;
 
-    d3.json("/data/world.geojson", createMap);
     const translation_h = w_svg/2;
     const translation_v = h_svg/2 * 1.1;
+    var aProjection = d3.geo.mercator().scale(480).translate([translation_h,translation_v]);
+    var geoPath = d3.geo.path().projection(aProjection);
+
+    d3.json("/data/world.geojson", createMap);
+
     function createMap(countries) {
-        var aProjection = d3.geo.mercator().scale(480).translate([translation_h,translation_v]);
-        var geoPath = d3.geo.path().projection(aProjection);
-        d3.select("svg").selectAll("path").data(countries.features)
+        featureColl.selectAll("path").data(countries.features)
             .enter()
             .append("path")
             .attr("d", geoPath)
