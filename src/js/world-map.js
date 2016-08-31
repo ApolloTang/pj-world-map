@@ -6,8 +6,8 @@ const h_svg = 1800;
 var viewBoxMaxX = w_svg;
 var viewBoxMaxY = h_svg;
 
-function zoom(_node) {
-   _node.attr("transform", "translate("
+function zoom(_selection) {
+   _selection.attr("transform", "translate("
        + d3.event.translate
        + ")scale(" + d3.event.scale + ")");
 }
@@ -21,8 +21,10 @@ export default function(node) {
 
     featureColl.call(
         d3.behavior.zoom()
-          .scaleExtent([1, 10])
-          .on("zoom", function(){zoom(featureColl)})
+        .translate([0, 0])
+        .scale(1)
+        .scaleExtent([1, 14])
+        .on("zoom", function(){zoom(featureColl)})
     );
 
     svgContainer
