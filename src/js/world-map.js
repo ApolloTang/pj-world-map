@@ -64,78 +64,96 @@ function getWorker_tranfromation(svgNode, plotArea) {
 };
 
 
-export default function(node) {
-    const el = d3.select(node);
-
-
-
-    const svgContainer = el.append('svg');
-    const featureColl = svgContainer.append('g').classed('featureCollection', true);
-    const toolTip = el.append('div').classed('map-tool-tip', true).text('tool tip');
-
-    // featureColl.call(
-        // must bind zoom to the svg ( like bellow)
-        // not to the group (above), see:
-        // http://bl.ocks.org/cpdean/7a71e687dd5a80f6fd57
-    svgContainer.call(
-        d3.behavior.zoom()
-        .translate([0, 0])
-        .scale(1)
-        .scaleExtent([1, 14])
-        .on("zoom", ()=>{zoom(featureColl)})
-    );
-
-
-    // const onMouseEnter = function() {
-    //     console.log('mouse Enter')
-    // }
-    //
-    // const onMouseLeave = function() {
-    //     console.log('mouse Leave')
-    // }
-    // featureColl.on('mouseenter', onMouseEnter);
-    // featureColl.on('mouseleave', onMouseLeave);
-
-
-    featureColl.on('mousemove', function(e){
-        var svgP = d3.mouse(this);
-        var svgX = svgP[0];
-        console.log('  a: x: ', getClientX(svgX).x, ' svg x');
-    });
-
-    // const _getClientCoordinate = getWorker_tranfromation(svgContainer.node(),featureColl.node());
-    function getClientX(svgX) {
-        var svgNode = svgContainer.node();
-        // var targetArea = svgNode;
-        var targetArea = featureColl.node();
-        var m = targetArea.getScreenCTM();
-        var svgP = svgNode.createSVGPoint();
-        svgP.x = svgX;
-        var clientX = svgP.matrixTransform(m);
-        return clientX;
+export default class WorldMap {
+    init_areasInSelection(node_container) {
+        const container = d3.select(node_container);
+        const svgContainer = container.append('svg');
+        const featureColl = svgContainer.append('g').classed('featureCollection', true);
+        const toolTip = container.append('div').classed('map-tool-tip', true).text('tool tip');
+        return {
+            container,
+            svgContainer,
+            featureColl,
+            toolTip
+        }
     }
+    constructor(node_container) {
+        //configuration
+        this.__c = {};
+        //d3 selection
+        this.__s = this.init_areasInSelection(node_container);
+        console.log(this.__s)
 
-    svgContainer
-        .attr('class', 'd3-world-map')
-        .attr('width', '100%').attr('height', '100%')
-        .attr('viewBox', '0 0 ' + viewBoxMaxX + ' ' + viewBoxMaxY);
+        const node = node_container;
+        const el = d3.select(node);
+        const svgContainer = el.append('svg');
+        const featureColl = svgContainer.append('g').classed('featureCollection', true);
+        const toolTip = el.append('div').classed('map-tool-tip', true).text('tool tip');
 
-    const translation_h = w_svg/2;
-    const translation_v = h_svg/2 * 1.1;
-    const projection = d3.geo.mercator().scale(480).translate([translation_h,translation_v]);
-    const geoPath = d3.geo.path().projection(projection);
+        // featureColl.call(
+            // must bind zoom to the svg ( like bellow)
+            // not to the group (above), see:
+            // http://bl.ocks.org/cpdean/7a71e687dd5a80f6fd57
+        svgContainer.call(
+            d3.behavior.zoom()
+            .translate([0, 0])
+            .scale(1)
+            .scaleExtent([1, 14])
+            .on("zoom", ()=>{zoom(featureColl)})
+        );
 
-    d3.json("/data/world.geojson", createMap);
+
+        // const onMouseEnter = function() {
+        //     console.log('mouse Enter')
+        // }
+        //
+        // const onMouseLeave = function() {
+        //     console.log('mouse Leave')
+        // }
+        // featureColl.on('mouseenter', onMouseEnter);
+        // featureColl.on('mouseleave', onMouseLeave);
 
 
-    function createMap(countries) {
-        featureColl.selectAll("path").data(countries.features)
-            .enter()
-            .append("path")
-            .attr("d", geoPath)
-            .attr("class", "countries")
-            // .each(function(item, i){ console.log(i, item.id, item.properties.name) })
-            // .on('mouseover', function(item, i){ console.log(i, item.id, item.properties.name) })
+        featureColl.on('mousemove', function(e){
+            var svgP = d3.mouse(this);
+            var svgX = svgP[0];
+            console.log('  a: x: ', getClientX(svgX).x, ' svg x');
+        });
+
+        // const _getClientCoordinate = getWorker_tranfromation(svgContainer.node(),featureColl.node());
+        function getClientX(svgX) {
+            var svgNode = svgContainer.node();
+            // var targetArea = svgNode;
+            var targetArea = featureColl.node();
+            var m = targetArea.getScreenCTM();
+            var svgP = svgNode.createSVGPoint();
+            svgP.x = svgX;
+            var clientX = svgP.matrixTransform(m);
+            return clientX;
+        }
+
+        svgContainer
+            .attr('class', 'd3-world-map')
+            .attr('width', '100%').attr('height', '100%')
+            .attr('viewBox', '0 0 ' + viewBoxMaxX + ' ' + viewBoxMaxY);
+
+        const translation_h = w_svg/2;
+        const translation_v = h_svg/2 * 1.1;
+        const projection = d3.geo.mercator().scale(480).translate([translation_h,translation_v]);
+        const geoPath = d3.geo.path().projection(projection);
+
+        d3.json("/data/world.geojson", createMap);
+
+
+        function createMap(countries) {
+            featureColl.selectAll("path").data(countries.features)
+                .enter()
+                .append("path")
+                .attr("d", geoPath)
+                .attr("class", "countries")
+                // .each(function(item, i){ console.log(i, item.id, item.properties.name) })
+                // .on('mouseover', function(item, i){ console.log(i, item.id, item.properties.name) })
+        }
     }
 }
 

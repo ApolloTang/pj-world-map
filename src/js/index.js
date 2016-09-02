@@ -1,6 +1,6 @@
 require('babel-polyfill');
-import wordMap from  './world-map.js';
+import WorldMap from  './world-map.js';
 
 const worldMapContainer = document.getElementById('world-map');
 
-wordMap(worldMapContainer);
+const wordMap = new WorldMap(worldMapContainer);
