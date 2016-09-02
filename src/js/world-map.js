@@ -1,4 +1,5 @@
 import d3 from 'd3';
+import dimensions from './dimensions';
 
 const w_svg = 3000;
 const h_svg = 1800;
@@ -18,27 +19,6 @@ const padding = {
     bottom: 100,
     left: 75
 };
-
-// const _conf = {
-//     margin = margin,
-//     padding = padding,
-//     w_svg = 3000,
-//     h_svg = 1000,
-//
-//     w_wrap = this._conf.w_svg - margin.left - margin.right,
-//     h_wrap = this._conf.h_svg - margin.top - margin.bottom,
-//     width =  this._conf.w_wrap - padding.left - padding.right,
-//     height = this._conf.h_wrap - padding.top - padding.bottom,
-// };
-
-
-// =================
-// == Create Area ==
-// =================
-
-
-
-
 
 function zoom(_selection) {
     _selection.attr("transform", "translate("
@@ -65,7 +45,8 @@ function getWorker_tranfromation(svgNode, plotArea) {
 
 
 export default class WorldMap {
-    init_areasInSelection(node_container) {
+
+    getSelections(node_container) {
         const container = d3.select(node_container);
         const svgContainer = container.append('svg');
         const featureColl = svgContainer.append('g').classed('featureCollection', true);
@@ -77,11 +58,16 @@ export default class WorldMap {
             toolTip
         }
     }
+
     constructor(node_container) {
         //configuration
-        this.__c = {};
+        this.__d = dimensions;
+
         //d3 selection
-        this.__s = this.init_areasInSelection(node_container);
+        this.__s = this.getSelections(node_container);
+
+        console.log(this.__d)
+
         console.log(this.__s)
 
         const node = node_container;
@@ -89,6 +75,7 @@ export default class WorldMap {
         const svgContainer = el.append('svg');
         const featureColl = svgContainer.append('g').classed('featureCollection', true);
         const toolTip = el.append('div').classed('map-tool-tip', true).text('tool tip');
+
 
         // featureColl.call(
             // must bind zoom to the svg ( like bellow)
