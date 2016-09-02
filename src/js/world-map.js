@@ -6,6 +6,40 @@ const h_svg = 1800;
 const viewBoxMaxX = w_svg;
 const viewBoxMaxY = h_svg;
 
+const margin = {
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0
+};
+const padding = {
+    top: 40,
+    right: 75,
+    bottom: 100,
+    left: 75
+};
+
+// const _conf = {
+//     margin = margin,
+//     padding = padding,
+//     w_svg = 3000,
+//     h_svg = 1000,
+//
+//     w_wrap = this._conf.w_svg - margin.left - margin.right,
+//     h_wrap = this._conf.h_svg - margin.top - margin.bottom,
+//     width =  this._conf.w_wrap - padding.left - padding.right,
+//     height = this._conf.h_wrap - padding.top - padding.bottom,
+// };
+
+
+// =================
+// == Create Area ==
+// =================
+
+
+
+
+
 function zoom(_selection) {
     _selection.attr("transform", "translate("
        + d3.event.translate
@@ -31,12 +65,13 @@ function getWorker_tranfromation(svgNode, plotArea) {
 
 
 export default function(node) {
-    const el = d3.select(node)
+    const el = d3.select(node);
+
+
 
     const svgContainer = el.append('svg');
     const featureColl = svgContainer.append('g').classed('featureCollection', true);
-    const toolTip = el.append('div').text('tool tip');
-
+    const toolTip = el.append('div').classed('map-tool-tip', true).text('tool tip');
 
     // featureColl.call(
         // must bind zoom to the svg ( like bellow)
