@@ -7,10 +7,28 @@ const viewBoxMaxX = w_svg;
 const viewBoxMaxY = h_svg;
 
 function zoom(_selection) {
-   _selection.attr("transform", "translate("
+    _selection.attr("transform", "translate("
        + d3.event.translate
        + ")scale(" + d3.event.scale + ")");
 }
+
+function getWorker_tranfromation(svgNode, plotArea) {
+    const  _getClientCoordinate  = function( { x= null, y = null } ) {
+
+        // const svgNode = selected.svg.node();
+        const p_user = svgNode.createSVGPoint();
+        p_user.x =  x;
+        p_user.y =  y;
+
+        // const plotAreaNode = selected.plotArea.select('.plot-area-background').node();
+        const m = plotAreaNode.getScreenCTM();   // Transformation metrix;
+
+        const p_client = p_user.matrixTransform(m);
+        return { 'x': p_client.x, 'y': p_client.y};
+    }
+    return _getClientCoordinate;
+};
+
 
 export default function(node) {
     const el = d3.select(node)
@@ -18,6 +36,7 @@ export default function(node) {
     const svgContainer = el.append('svg');
     const featureColl = svgContainer.append('g').classed('featureCollection', true);
     const toolTip = el.append('div').text('tool tip');
+
 
     // featureColl.call(
         // must bind zoom to the svg ( like bellow)
@@ -31,6 +50,36 @@ export default function(node) {
         .on("zoom", ()=>{zoom(featureColl)})
     );
 
+
+    // const onMouseEnter = function() {
+    //     console.log('mouse Enter')
+    // }
+    //
+    // const onMouseLeave = function() {
+    //     console.log('mouse Leave')
+    // }
+    // featureColl.on('mouseenter', onMouseEnter);
+    // featureColl.on('mouseleave', onMouseLeave);
+
+
+    featureColl.on('mousemove', function(e){
+        var svgP = d3.mouse(this);
+        var svgX = svgP[0];
+        console.log('  a: x: ', getClientX(svgX).x, ' svg x');
+    });
+
+    // const _getClientCoordinate = getWorker_tranfromation(svgContainer.node(),featureColl.node());
+    function getClientX(svgX) {
+        var svgNode = svgContainer.node();
+        // var targetArea = svgNode;
+        var targetArea = featureColl.node();
+        var m = targetArea.getScreenCTM();
+        var svgP = svgNode.createSVGPoint();
+        svgP.x = svgX;
+        var clientX = svgP.matrixTransform(m);
+        return clientX;
+    }
+
     svgContainer
         .attr('class', 'd3-world-map')
         .attr('width', '100%').attr('height', '100%')
@@ -42,6 +91,7 @@ export default function(node) {
     const geoPath = d3.geo.path().projection(projection);
 
     d3.json("/data/world.geojson", createMap);
+
 
     function createMap(countries) {
         featureColl.selectAll("path").data(countries.features)
