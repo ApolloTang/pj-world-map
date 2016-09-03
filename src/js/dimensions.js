@@ -17,10 +17,10 @@ const margin = {
 };
 
 const padding = {
-    top: 40,
-    right: 75,
-    bottom: 40,
-    left: 75
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0
 };
 
 const stageWrap = {

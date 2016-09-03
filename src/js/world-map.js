@@ -45,17 +45,16 @@ function getWorker_tranfromation(svgNode, plotArea) {
 
 
 export default class WorldMap {
-
     getSelections(node_container) {
         const __d = this.__d;
 
         const container = d3.select(node_container);
-        const svgContainer = container.append('svg')
-            // .attr('class', 'world-map')
+
+        const svg = container.append('svg')
             .attr('width', __d.svg.w).attr('height', __d.h)
             .attr('viewBox', '0 0 ' + __d.viewBox.maxW + ' ' + __d.viewBox.maxH);
 
-        const stageWrap = svgContainer
+        const stageWrap = svg
             .append('g').classed('stageWrap', true)
             .attr('transform', 'translate(' + this.__d.margin.left + ',' + this.__d.margin.top + ')');
 
@@ -73,15 +72,16 @@ export default class WorldMap {
             .attr('class', 'stageBg')
             .attr('width', __d.stage.w)
             .attr('height', __d.stage.h)
-            .attr('fill', '#cccccc');
+            .attr('fill', 'transparent');
 
         const featureColl = stage.append('g')
             .classed('featureCollection', true);
 
         const toolTip = container.append('div').classed('map-tool-tip', true).text('tool tip');
+
         return {
             container,
-            svgContainer,
+            svg,
             featureColl,
             stageWrap,
             stageWrapBg,
@@ -98,6 +98,9 @@ export default class WorldMap {
         //d3 selection
         this.__s = this.getSelections(node_container);
 
+        const __s = this.__s;
+        const __d = this.__d;
+
         console.log(this.__d)
 
         console.log(this.__s)
@@ -113,19 +116,30 @@ export default class WorldMap {
             .attr('width', '100%').attr('height', '100%')
             .attr('viewBox', '0 0 ' + viewBoxMaxX + ' ' + viewBoxMaxY);
 
-        // svgContainer = _
 
-        // featureColl.call(
+        // __s.stage.call(
             // must bind zoom to the svg ( like bellow)
             // not to the group (above), see:
             // http://bl.ocks.org/cpdean/7a71e687dd5a80f6fd57
-        svgContainer.call(
+        __s.svg.call(
             d3.behavior.zoom()
             .translate([0, 0])
             .scale(1)
             .scaleExtent([1, 14])
-            .on("zoom", ()=>{zoom(featureColl)})
+            .on("zoom", ()=>{zoom(__s.stage)})
         );
+
+        // // featureColl.call(
+        //     // must bind zoom to the svg ( like bellow)
+        //     // not to the group (above), see:
+        //     // http://bl.ocks.org/cpdean/7a71e687dd5a80f6fd57
+        // svgContainer.call(
+        //     d3.behavior.zoom()
+        //     .translate([0, 0])
+        //     .scale(1)
+        //     .scaleExtent([1, 14])
+        //     .on("zoom", ()=>{zoom(featureColl)})
+        // );
 
 
         // const onMouseEnter = function() {
@@ -158,8 +172,26 @@ export default class WorldMap {
         }
 
 
-        const translation_h = w_svg/2;
-        const translation_v = h_svg/2 * 1.1;
+        // const translation_h = w_svg/2;
+        // const translation_v = h_svg/2 * 1.1;
+        // const projection = d3.geo.mercator().scale(480).translate([translation_h,translation_v]);
+        // const geoPath = d3.geo.path().projection(projection);
+        //
+        // d3.json("/data/world.geojson", createMap);
+        //
+        //
+        // function createMap(countries) {
+        //     featureColl.selectAll("path").data(countries.features)
+        //         .enter()
+        //         .append("path")
+        //         .attr("d", geoPath)
+        //         .attr("class", "countries")
+        //         // .each(function(item, i){ console.log(i, item.id, item.properties.name) })
+        //         // .on('mouseover', function(item, i){ console.log(i, item.id, item.properties.name) })
+        // }
+
+        const translation_h = __d.stage.w/2;
+        const translation_v = __d.stage.h/2 * 1.1;
         const projection = d3.geo.mercator().scale(480).translate([translation_h,translation_v]);
         const geoPath = d3.geo.path().projection(projection);
 
@@ -167,13 +199,13 @@ export default class WorldMap {
 
 
         function createMap(countries) {
-            featureColl.selectAll("path").data(countries.features)
+            __s.stage.selectAll("path").data(countries.features)
                 .enter()
                 .append("path")
                 .attr("d", geoPath)
                 .attr("class", "countries")
-                // .each(function(item, i){ console.log(i, item.id, item.properties.name) })
-                // .on('mouseover', function(item, i){ console.log(i, item.id, item.properties.name) })
+                .each(function(item, i){ console.log(i, item.id, item.properties.name) })
+                .on('mouseover', function(item, i){ console.log(i, item.id, item.properties.name) })
         }
     }
 }
