@@ -215,6 +215,12 @@ export default class WorldMap {
 
         d3.json("/data/world.geojson", createMap);
 
+        $('body').mousemove(function(e){
+            console.log(event)
+            var x = event.pageX;
+            // console.log('div: x: ', x, ' client x' );
+        });
+
 
         function createMap(countries) {
             __s.stage.selectAll("path").data(countries.features)
