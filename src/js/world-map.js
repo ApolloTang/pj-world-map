@@ -106,16 +106,16 @@ export default class WorldMap {
 
         console.log(this.__s)
 
-        const node = node_container;
-        const el = d3.select(node);
-        const svgContainer = el.append('svg');
-        const featureColl = svgContainer.append('g').classed('featureCollection', true);
-        const toolTip = el.append('div').classed('map-tool-tip', true).text('tool tip');
-
-        svgContainer
-            .attr('class', 'd3-world-map')
-            .attr('width', '100%').attr('height', '100%')
-            .attr('viewBox', '0 0 ' + viewBoxMaxX + ' ' + viewBoxMaxY);
+        // const node = node_container;
+        // const el = d3.select(node);
+        // const svgContainer = el.append('svg');
+        // const featureColl = svgContainer.append('g').classed('featureCollection', true);
+        // const toolTip = el.append('div').classed('map-tool-tip', true).text('tool tip');
+        //
+        // svgContainer
+        //     .attr('class', 'd3-world-map')
+        //     .attr('width', '100%').attr('height', '100%')
+        //     .attr('viewBox', '0 0 ' + viewBoxMaxX + ' ' + viewBoxMaxY);
 
 
         // __s.stage.call(
