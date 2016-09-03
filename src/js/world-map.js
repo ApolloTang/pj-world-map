@@ -87,6 +87,7 @@ export default class WorldMap {
             stageWrapBg,
             stage,
             stageBg,
+            featureColl,
             toolTip
         }
     }
@@ -153,7 +154,25 @@ export default class WorldMap {
         // featureColl.on('mouseleave', onMouseLeave);
 
 
-        featureColl.on('mousemove', function(e){
+        // featureColl.on('mousemove', function(e){
+        //     var svgP = d3.mouse(this);
+        //     var svgX = svgP[0];
+        //     console.log('  a: x: ', getClientX(svgX).x, ' svg x');
+        // });
+
+        // // const _getClientCoordinate = getWorker_tranfromation(svgContainer.node(),featureColl.node());
+        // function getClientX(svgX) {
+        //     var svgNode = svgContainer.node();
+        //     // var targetArea = svgNode;
+        //     var targetArea = featureColl.node();
+        //     var m = targetArea.getScreenCTM();
+        //     var svgP = svgNode.createSVGPoint();
+        //     svgP.x = svgX;
+        //     var clientX = svgP.matrixTransform(m);
+        //     return clientX;
+        // }
+
+        __s.stage.on('mousemove', function(e){
             var svgP = d3.mouse(this);
             var svgX = svgP[0];
             console.log('  a: x: ', getClientX(svgX).x, ' svg x');
@@ -161,9 +180,8 @@ export default class WorldMap {
 
         // const _getClientCoordinate = getWorker_tranfromation(svgContainer.node(),featureColl.node());
         function getClientX(svgX) {
-            var svgNode = svgContainer.node();
-            // var targetArea = svgNode;
-            var targetArea = featureColl.node();
+            var svgNode = __s.svg.node();
+            var targetArea = __s.featureColl.node();
             var m = targetArea.getScreenCTM();
             var svgP = svgNode.createSVGPoint();
             svgP.x = svgX;
@@ -204,8 +222,8 @@ export default class WorldMap {
                 .append("path")
                 .attr("d", geoPath)
                 .attr("class", "countries")
-                .each(function(item, i){ console.log(i, item.id, item.properties.name) })
-                .on('mouseover', function(item, i){ console.log(i, item.id, item.properties.name) })
+                // .each(function(item, i){ console.log(i, item.id, item.properties.name) })
+                // .on('mouseover', function(item, i){ console.log(i, item.id, item.properties.name) })
         }
     }
 }
