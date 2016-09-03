@@ -19,7 +19,7 @@ const margin = {
 const padding = {
     top: 40,
     right: 75,
-    bottom: 100,
+    bottom: 40,
     left: 75
 };
 

@@ -47,14 +47,46 @@ function getWorker_tranfromation(svgNode, plotArea) {
 export default class WorldMap {
 
     getSelections(node_container) {
+        const __d = this.__d;
+
         const container = d3.select(node_container);
-        const svgContainer = container.append('svg');
-        const featureColl = svgContainer.append('g').classed('featureCollection', true);
+        const svgContainer = container.append('svg')
+            // .attr('class', 'world-map')
+            .attr('width', __d.svg.w).attr('height', __d.h)
+            .attr('viewBox', '0 0 ' + __d.viewBox.maxW + ' ' + __d.viewBox.maxH);
+
+        const stageWrap = svgContainer
+            .append('g').classed('stageWrap', true)
+            .attr('transform', 'translate(' + this.__d.margin.left + ',' + this.__d.margin.top + ')');
+
+        const stageWrapBg = stageWrap.append('rect')
+            .attr('class', 'wrap-background')
+            .attr('width', __d.stageWrap.w)
+            .attr('height', __d.stageWrap.h)
+            .attr('fill', '#dddddd');
+
+        const stage = stageWrap.append('g')
+            .classed('stage', true)
+            .attr('transform', 'translate(' + __d.padding.left + ',' + __d.padding.top + ')');
+
+        const stageBg = stage.append('rect')
+            .attr('class', 'stageBg')
+            .attr('width', __d.stage.w)
+            .attr('height', __d.stage.h)
+            .attr('fill', '#cccccc');
+
+        const featureColl = stage.append('g')
+            .classed('featureCollection', true);
+
         const toolTip = container.append('div').classed('map-tool-tip', true).text('tool tip');
         return {
             container,
             svgContainer,
             featureColl,
+            stageWrap,
+            stageWrapBg,
+            stage,
+            stageBg,
             toolTip
         }
     }
@@ -76,6 +108,12 @@ export default class WorldMap {
         const featureColl = svgContainer.append('g').classed('featureCollection', true);
         const toolTip = el.append('div').classed('map-tool-tip', true).text('tool tip');
 
+        svgContainer
+            .attr('class', 'd3-world-map')
+            .attr('width', '100%').attr('height', '100%')
+            .attr('viewBox', '0 0 ' + viewBoxMaxX + ' ' + viewBoxMaxY);
+
+        // svgContainer = _
 
         // featureColl.call(
             // must bind zoom to the svg ( like bellow)
@@ -119,10 +157,6 @@ export default class WorldMap {
             return clientX;
         }
 
-        svgContainer
-            .attr('class', 'd3-world-map')
-            .attr('width', '100%').attr('height', '100%')
-            .attr('viewBox', '0 0 ' + viewBoxMaxX + ' ' + viewBoxMaxY);
 
         const translation_h = w_svg/2;
         const translation_v = h_svg/2 * 1.1;
