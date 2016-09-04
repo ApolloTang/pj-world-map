@@ -26,6 +26,10 @@ function zoom(_selection) {
        + ")scale(" + d3.event.scale + ")");
 }
 
+
+
+
+
 function getWorker_tranfromation(svgNode, plotArea) {
     const  _getClientCoordinate  = function( { x= null, y = null } ) {
 
@@ -42,7 +46,6 @@ function getWorker_tranfromation(svgNode, plotArea) {
     }
     return _getClientCoordinate;
 };
-
 
 export default class WorldMap {
     getSelections(node_container) {
@@ -94,6 +97,7 @@ export default class WorldMap {
 
     constructor(node_container) {
         window.w = this;
+
         //configuration
         this.__d = dimensions;
 
@@ -105,18 +109,6 @@ export default class WorldMap {
 
         console.log(this.__d)
         console.log(this.__s)
-
-        // const node = node_container;
-        // const el = d3.select(node);
-        // const svgContainer = el.append('svg');
-        // const featureColl = svgContainer.append('g').classed('featureCollection', true);
-        // const toolTip = el.append('div').classed('map-tool-tip', true).text('tool tip');
-        //
-        // svgContainer
-        //     .attr('class', 'd3-world-map')
-        //     .attr('width', '100%').attr('height', '100%')
-        //     .attr('viewBox', '0 0 ' + viewBoxMaxX + ' ' + viewBoxMaxY);
-
 
         // __s.stage.call(
             // must bind zoom to the svg ( like bellow)
@@ -130,19 +122,6 @@ export default class WorldMap {
             .on("zoom", ()=>{zoom(__s.stage)})
         );
 
-        // // featureColl.call(
-        //     // must bind zoom to the svg ( like bellow)
-        //     // not to the group (above), see:
-        //     // http://bl.ocks.org/cpdean/7a71e687dd5a80f6fd57
-        // svgContainer.call(
-        //     d3.behavior.zoom()
-        //     .translate([0, 0])
-        //     .scale(1)
-        //     .scaleExtent([1, 14])
-        //     .on("zoom", ()=>{zoom(featureColl)})
-        // );
-
-
         // const onMouseEnter = function() {
         //     console.log('mouse Enter')
         // }
@@ -153,25 +132,7 @@ export default class WorldMap {
         // featureColl.on('mouseenter', onMouseEnter);
         // featureColl.on('mouseleave', onMouseLeave);
 
-
-        // featureColl.on('mousemove', function(e){
-        //     var svgP = d3.mouse(this);
-        //     var svgX = svgP[0];
-        //     console.log('  a: x: ', getClientX(svgX).x, ' svg x');
-        // });
-
         // // const _getClientCoordinate = getWorker_tranfromation(svgContainer.node(),featureColl.node());
-        // function getClientX(svgX) {
-        //     var svgNode = svgContainer.node();
-        //     // var targetArea = svgNode;
-        //     var targetArea = featureColl.node();
-        //     var m = targetArea.getScreenCTM();
-        //     var svgP = svgNode.createSVGPoint();
-        //     svgP.x = svgX;
-        //     var clientX = svgP.matrixTransform(m);
-        //     return clientX;
-        // }
-
         const n_toolTip = __s.toolTip.node();
         n_toolTip.style.position = 'absolute';
         __s.stage.on('mousemove', function(e){
@@ -183,7 +144,7 @@ export default class WorldMap {
             n_toolTip.style.top = `${coord_client.y}px`;
         });
 
-        // const _getClientCoordinate = getWorker_tranfromation(svgContainer.node(),featureColl.node());
+
         function getClientCoordinate(coord_svg) {
             var svgNode = __s.svg.node();
             var targetArea = __s.featureColl.node();
@@ -196,24 +157,6 @@ export default class WorldMap {
             var clientY = coord_client.y;
             return { 'x': clientX, 'y': clientY};
         }
-
-        // const translation_h = w_svg/2;
-        // const translation_v = h_svg/2 * 1.1;
-        // const projection = d3.geo.mercator().scale(480).translate([translation_h,translation_v]);
-        // const geoPath = d3.geo.path().projection(projection);
-        //
-        // d3.json("/data/world.geojson", createMap);
-        //
-        //
-        // function createMap(countries) {
-        //     featureColl.selectAll("path").data(countries.features)
-        //         .enter()
-        //         .append("path")
-        //         .attr("d", geoPath)
-        //         .attr("class", "countries")
-        //         // .each(function(item, i){ console.log(i, item.id, item.properties.name) })
-        //         // .on('mouseover', function(item, i){ console.log(i, item.id, item.properties.name) })
-        // }
 
         const translation_h = __d.stage.w/2;
         const translation_v = __d.stage.h/2 * 1.1;
