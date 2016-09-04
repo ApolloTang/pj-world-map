@@ -1,52 +1,6 @@
 import d3 from 'd3';
 import dimensions from './dimensions';
 
-const w_svg = 3000;
-const h_svg = 1800;
-
-const viewBoxMaxX = w_svg;
-const viewBoxMaxY = h_svg;
-
-const margin = {
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0
-};
-const padding = {
-    top: 40,
-    right: 75,
-    bottom: 100,
-    left: 75
-};
-
-function zoom(_selection) {
-    _selection.attr("transform", "translate("
-       + d3.event.translate
-       + ")scale(" + d3.event.scale + ")");
-}
-
-
-
-
-
-function getWorker_tranfromation(svgNode, plotArea) {
-    const  _getClientCoordinate  = function( { x= null, y = null } ) {
-
-        // const svgNode = selected.svg.node();
-        const p_user = svgNode.createSVGPoint();
-        p_user.x =  x;
-        p_user.y =  y;
-
-        // const plotAreaNode = selected.plotArea.select('.plot-area-background').node();
-        const m = plotAreaNode.getScreenCTM();   // Transformation metrix;
-
-        const p_client = p_user.matrixTransform(m);
-        return { 'x': p_client.x, 'y': p_client.y};
-    }
-    return _getClientCoordinate;
-};
-
 export default class WorldMap {
     getSelections(node_container) {
         const __d = this.__d;
@@ -107,28 +61,19 @@ export default class WorldMap {
         const __s = this.__s;
         const __d = this.__d;
 
-        console.log(this.__d)
-        console.log(this.__s)
-
-        // __s.stage.call(
-            // must bind zoom to the svg ( like bellow)
-            // not to the group (above), see:
-            // http://bl.ocks.org/cpdean/7a71e687dd5a80f6fd57
-
-        const selection = __s;
-
-        selection.svg.call(
+        // __s.stage.call( // must bind zoom to the svg ( like bellow) not to the group (above), see: // http://bl.ocks.org/cpdean/7a71e687dd5a80f6fd57
+        __s.svg.call(
             d3.behavior.zoom()
             .translate([0, 0])
             .scale(1)
             .scaleExtent([1, 14])
-            .on('zoom', ()=>{ selection.stage.attr('transform', 'translate('+d3.event.translate+')scale('+d3.event.scale+')'); })
+            .on('zoom', ()=>{ __s.stage.attr('transform', 'translate('+d3.event.translate+')scale('+d3.event.scale+')'); })
         );
 
-        const n_toolTip = selection.toolTip.node();
+        const n_toolTip = __s.toolTip.node();
         n_toolTip.style.position = 'absolute';
 
-        selection.svg.node().addEventListener('mousemove',function(evt){
+        __s.svg.node().addEventListener('mousemove',function(evt){
             const coord_client = {
                 x:evt.clientX,
                 y:evt.clientY,
@@ -177,13 +122,6 @@ export default class WorldMap {
         const geoPath = d3.geo.path().projection(projection);
 
         d3.json("/data/world.geojson", createMap);
-
-        // $('body').mousemove(function(e){
-        //     console.log(event)
-        //     var x = event.pageX;
-        //     // console.log('div: x: ', x, ' client x' );
-        // });
-
         function createMap(countries) {
             __s.stage.selectAll("path").data(countries.features)
                 .enter()
