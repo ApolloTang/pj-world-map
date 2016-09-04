@@ -93,6 +93,7 @@ export default class WorldMap {
     }
 
     constructor(node_container) {
+        window.w = this;
         //configuration
         this.__d = dimensions;
 
@@ -103,7 +104,6 @@ export default class WorldMap {
         const __d = this.__d;
 
         console.log(this.__d)
-
         console.log(this.__s)
 
         // const node = node_container;
@@ -172,23 +172,30 @@ export default class WorldMap {
         //     return clientX;
         // }
 
+        const n_toolTip = __s.toolTip.node();
+        n_toolTip.style.position = 'absolute';
         __s.stage.on('mousemove', function(e){
             var svgP = d3.mouse(this);
             var svgX = svgP[0];
-            console.log('  a: x: ', getClientX(svgX).x, ' svg x');
+            var svgY = svgP[1];
+            const coord_client = getClientCoordinate({x:svgX, y:svgY});
+            n_toolTip.style.left = `${coord_client.x}px`;
+            n_toolTip.style.top = `${coord_client.y}px`;
         });
 
         // const _getClientCoordinate = getWorker_tranfromation(svgContainer.node(),featureColl.node());
-        function getClientX(svgX) {
+        function getClientCoordinate(coord_svg) {
             var svgNode = __s.svg.node();
             var targetArea = __s.featureColl.node();
             var m = targetArea.getScreenCTM();
             var svgP = svgNode.createSVGPoint();
-            svgP.x = svgX;
-            var clientX = svgP.matrixTransform(m);
-            return clientX;
+            svgP.x = coord_svg.x;
+            svgP.y = coord_svg.y;
+            var coord_client = svgP.matrixTransform(m);
+            var clientX = coord_client.x;
+            var clientY = coord_client.y;
+            return { 'x': clientX, 'y': clientY};
         }
-
 
         // const translation_h = w_svg/2;
         // const translation_v = h_svg/2 * 1.1;
@@ -215,12 +222,11 @@ export default class WorldMap {
 
         d3.json("/data/world.geojson", createMap);
 
-        $('body').mousemove(function(e){
-            console.log(event)
-            var x = event.pageX;
-            // console.log('div: x: ', x, ' client x' );
-        });
-
+        // $('body').mousemove(function(e){
+        //     console.log(event)
+        //     var x = event.pageX;
+        //     // console.log('div: x: ', x, ' client x' );
+        // });
 
         function createMap(countries) {
             __s.stage.selectAll("path").data(countries.features)
@@ -228,8 +234,8 @@ export default class WorldMap {
                 .append("path")
                 .attr("d", geoPath)
                 .attr("class", "countries")
-                // .each(function(item, i){ console.log(i, item.id, item.properties.name) })
-                // .on('mouseover', function(item, i){ console.log(i, item.id, item.properties.name) })
+                .each(function(item, i){ console.log(i, item.id, item.properties.name) })
+                .on('mouseover', function(item, i){ console.log(i, item.id, item.properties.name) })
         }
     }
 }
