@@ -114,35 +114,38 @@ export default class WorldMap {
             // must bind zoom to the svg ( like bellow)
             // not to the group (above), see:
             // http://bl.ocks.org/cpdean/7a71e687dd5a80f6fd57
-        __s.svg.call(
+
+        const selection = __s;
+
+        selection.svg.call(
             d3.behavior.zoom()
             .translate([0, 0])
             .scale(1)
             .scaleExtent([1, 14])
-            .on("zoom", ()=>{zoom(__s.stage)})
+            .on('zoom', ()=>{ selection.stage.attr('transform', 'translate('+d3.event.translate+')scale('+d3.event.scale+')'); })
         );
 
-        // const onMouseEnter = function() {
-        //     console.log('mouse Enter')
-        // }
-        //
-        // const onMouseLeave = function() {
-        //     console.log('mouse Leave')
-        // }
-        // featureColl.on('mouseenter', onMouseEnter);
-        // featureColl.on('mouseleave', onMouseLeave);
-
-        // // const _getClientCoordinate = getWorker_tranfromation(svgContainer.node(),featureColl.node());
-        const n_toolTip = __s.toolTip.node();
+        const n_toolTip = selection.toolTip.node();
         n_toolTip.style.position = 'absolute';
-        __s.stage.on('mousemove', function(e){
-            var svgP = d3.mouse(this);
-            var svgX = svgP[0];
-            var svgY = svgP[1];
-            const coord_client = getClientCoordinate({x:svgX, y:svgY});
+
+        selection.svg.node().addEventListener('mousemove',function(evt){
+            const coord_client = {
+                x:evt.clientX,
+                y:evt.clientY,
+            }
             n_toolTip.style.left = `${coord_client.x}px`;
             n_toolTip.style.top = `${coord_client.y}px`;
-        });
+        }, false);
+
+
+        // __s.stage.on('mousemove', function(e){
+        //     var svgP = d3.mouse(this);
+        //     var svgX = svgP[0];
+        //     var svgY = svgP[1];
+        //     const coord_client = getClientCoordinate({x:svgX, y:svgY});
+        //     n_toolTip.style.left = `${coord_client.x}px`;
+        //     n_toolTip.style.top = `${coord_client.y}px`;
+        // });
 
 
         function getClientCoordinate(coord_svg) {
@@ -157,6 +160,16 @@ export default class WorldMap {
             var clientY = coord_client.y;
             return { 'x': clientX, 'y': clientY};
         }
+
+        // const onMouseEnter = function() {
+        //     console.log('mouse Enter')
+        // }
+        //
+        // const onMouseLeave = function() {
+        //     console.log('mouse Leave')
+        // }
+        // featureColl.on('mouseenter', onMouseEnter);
+        // featureColl.on('mouseleave', onMouseLeave);
 
         const translation_h = __d.stage.w/2;
         const translation_v = __d.stage.h/2 * 1.1;
