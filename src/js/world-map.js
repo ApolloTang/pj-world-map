@@ -67,7 +67,9 @@ export default class WorldMap {
             .translate([0, 0])
             .scale(1)
             .scaleExtent([1, 14])
-            .on('zoom', ()=>{ __s.stage.attr('transform', 'translate('+d3.event.translate+')scale('+d3.event.scale+')'); })
+            .on('zoom', ()=>{
+                __s.stage.attr('transform', 'translate('+d3.event.translate+')scale('+d3.event.scale+')');
+            })
         );
 
         const n_toolTip = __s.toolTip.node();
@@ -130,28 +132,20 @@ export default class WorldMap {
                 .attr("d", geoPath)
                 .attr("class", "countries")
                 .each(function(item, i){ console.log(i, item.id, item.properties.name) })
-                .on('mouseover', function(item, i){
-                    console.log(i, item.id, item.properties.name)
-                    console.log(n_toolTip)
-                    n_toolTip.innerHTML =item.properties.name ;
-                })
-                .on('mouseenter', function(item, i){
-                    console.log('enter', i, item.id, item.properties.name)
-                    const that = this;
-                    d3.select(that).on('mousemove', function(e){
-                        var svgP = d3.mouse(this);
-                        var svgX = svgP[0];
-                        var svgY = svgP[1];
-                        const coord_client = getClientCoordinate({x:svgX, y:svgY});
-                        n_toolTip.style.display = `block`;
-                        n_toolTip.style.left = `${coord_client.x}px`;
-                        n_toolTip.style.top = `${coord_client.y}px`;
-                    });
+                .on('mouseenter', function(d, i){
+                    const selection_this = d3.select(this);
+                    selection_this.classed('mouse-over', true).style('fill', 'red')
+                    const thisCentroid = geoPath.centroid(d);
+                    const coord_client = getClientCoordinate({x:thisCentroid[0], y:thisCentroid[1]});
+                    n_toolTip.style.display = `block`;
+                    n_toolTip.style.left = `${coord_client.x}px`;
+                    n_toolTip.style.top = `${coord_client.y}px`;
+                    n_toolTip.innerHTML = d.properties.name ;
                 })
                 .on('mouseleave', function(item, i){
+                    const selection_this = d3.select(this);
+                    selection_this.classed('mouse-over', false).style('fill', 'transparent')
                     n_toolTip.style.display = `none`;
-                    const that = this;
-                    d3.select(that).on('mousemove', null);
                 })
         }
     }
