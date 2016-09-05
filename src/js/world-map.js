@@ -73,14 +73,14 @@ export default class WorldMap {
         const n_toolTip = __s.toolTip.node();
         n_toolTip.style.position = 'absolute';
 
-        __s.svg.node().addEventListener('mousemove',function(evt){
-            const coord_client = {
-                x:evt.clientX,
-                y:evt.clientY,
-            }
-            n_toolTip.style.left = `${coord_client.x}px`;
-            n_toolTip.style.top = `${coord_client.y}px`;
-        }, false);
+        // __s.svg.node().addEventListener('mousemove',function(evt){
+        //     const coord_client = {
+        //         x:evt.clientX,
+        //         y:evt.clientY,
+        //     }
+        //     n_toolTip.style.left = `${coord_client.x}px`;
+        //     n_toolTip.style.top = `${coord_client.y}px`;
+        // }, false);
 
 
         // __s.stage.on('mousemove', function(e){
@@ -121,15 +121,38 @@ export default class WorldMap {
         const projection = d3.geo.mercator().scale(480).translate([translation_h,translation_v]);
         const geoPath = d3.geo.path().projection(projection);
 
+        let myInterval = void 0;
         d3.json("/data/world.geojson", createMap);
         function createMap(countries) {
-            __s.stage.selectAll("path").data(countries.features)
+            __s.featureColl.selectAll("path").data(countries.features)
                 .enter()
                 .append("path")
                 .attr("d", geoPath)
                 .attr("class", "countries")
                 .each(function(item, i){ console.log(i, item.id, item.properties.name) })
-                .on('mouseover', function(item, i){ console.log(i, item.id, item.properties.name) })
+                .on('mouseover', function(item, i){
+                    console.log(i, item.id, item.properties.name)
+                    console.log(n_toolTip)
+                    n_toolTip.innerHTML =item.properties.name ;
+                })
+                .on('mouseenter', function(item, i){
+                    console.log('enter', i, item.id, item.properties.name)
+                    const that = this;
+                    d3.select(that).on('mousemove', function(e){
+                        var svgP = d3.mouse(this);
+                        var svgX = svgP[0];
+                        var svgY = svgP[1];
+                        const coord_client = getClientCoordinate({x:svgX, y:svgY});
+                        n_toolTip.style.display = `block`;
+                        n_toolTip.style.left = `${coord_client.x}px`;
+                        n_toolTip.style.top = `${coord_client.y}px`;
+                    });
+                })
+                .on('mouseleave', function(item, i){
+                    n_toolTip.style.display = `none`;
+                    const that = this;
+                    d3.select(that).on('mousemove', null);
+                })
         }
     }
 }
