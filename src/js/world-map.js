@@ -61,25 +61,29 @@ export default class WorldMap {
         const __s = this.__s;
         const __d = this.__d;
 
+        const selection_svg = __s.svg;
+        const selection_plotArea =  __s.stage;
+        const selection_toolTip =  __s.toolTip;
+
         // __s.stage.call( // must bind zoom to the svg ( like bellow) not to the group (above), see: // http://bl.ocks.org/cpdean/7a71e687dd5a80f6fd57
-        __s.svg.call(
+        selection_svg.call(
             d3.behavior.zoom()
             .translate([0, 0])
             .scale(1)
             .scaleExtent([1, 14])
-            .on('zoom', ()=>{ __s.stage.attr('transform', 'translate('+d3.event.translate+')scale('+d3.event.scale+')'); })
+            .on('zoom', ()=>{ selection_plotArea.attr('transform', 'translate('+d3.event.translate+')scale('+d3.event.scale+')'); })
         );
 
-        const n_toolTip = __s.toolTip.node();
-        n_toolTip.style.position = 'absolute';
+        const toolTipNode = selection_toolTip.node();
+        toolTipNode.style.position = 'absolute';
 
-        __s.svg.node().addEventListener('mousemove',function(evt){
+        selection_svg.node().addEventListener('mousemove',function(evt){
             const coord_client = {
                 x:evt.clientX,
                 y:evt.clientY,
             }
-            n_toolTip.style.left = `${coord_client.x}px`;
-            n_toolTip.style.top = `${coord_client.y}px`;
+            toolTipNode.style.left = `${coord_client.x}px`;
+            toolTipNode.style.top = `${coord_client.y}px`;
         }, false);
 
 
