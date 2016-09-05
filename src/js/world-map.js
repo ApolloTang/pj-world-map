@@ -1,6 +1,16 @@
 import d3 from 'd3';
 import dimensions from './dimensions';
 
+
+
+// Return the current scrollbar offsets as the x and y properties
+function getScrollOffsets() {
+    const w = window;
+    if (w.pageXOffset != null) return {x: w.pageXOffset, y:w.pageYOffset};
+}
+
+
+
 export default class WorldMap {
     getSelections(node_container) {
         const __d = this.__d;
@@ -60,6 +70,11 @@ export default class WorldMap {
 
         const __s = this.__s;
         const __d = this.__d;
+
+        document.addEventListener('scroll', function(){
+            const scrollOffset = getScrollOffsets();
+            console.log('scrollOffset', scrollOffset);
+        });
 
         // __s.stage.call( // must bind zoom to the svg ( like bellow) not to the group (above), see: // http://bl.ocks.org/cpdean/7a71e687dd5a80f6fd57
         __s.svg.call(
@@ -134,7 +149,7 @@ export default class WorldMap {
                 .each(function(item, i){ console.log(i, item.id, item.properties.name) })
                 .on('mouseenter', function(d, i){
                     const selection_this = d3.select(this);
-                    selection_this.classed('mouse-over', true).style('fill', 'red')
+                    selection_this.classed('mouse-over', true);
                     const thisCentroid = geoPath.centroid(d);
                     const coord_client = getClientCoordinate({x:thisCentroid[0], y:thisCentroid[1]});
                     n_toolTip.style.display = `block`;
@@ -144,7 +159,7 @@ export default class WorldMap {
                 })
                 .on('mouseleave', function(item, i){
                     const selection_this = d3.select(this);
-                    selection_this.classed('mouse-over', false).style('fill', 'transparent')
+                    selection_this.classed('mouse-over', false);
                     n_toolTip.style.display = `none`;
                 })
         }
