@@ -2,7 +2,6 @@ import d3 from 'd3';
 import dimensions from './dimensions';
 
 
-
 // Return the current scrollbar offsets as the x and y properties
 function getScrollOffsets() {
     const w = window;
@@ -24,6 +23,7 @@ function throttle(type, name, obj) {
     };
     obj.addEventListener(type, func);
 };
+
 
 export default class WorldMap {
     getSelections(node_container) {
@@ -73,18 +73,35 @@ export default class WorldMap {
         }
     }
 
+    updatePositionAndSize() {
+        const container_node = this.__s.container.node();
+
+        const boundingClient_container = container_node.getBoundingClientRect();
+        console.log('boundingClient_container', boundingClient_container);
+
+        const boundingDoc_container = {
+            top: boundingClient_container.top + scrollOffset.y,
+            left: boundingClient_container.left + scrollOffset.x
+        };
+        console.log('boundingDoc_container', boundingDoc_container);
+        const scrollOffset = getScrollOffsets();
+        console.log('scrollOffset', scrollOffset);
+    }
+
     addListener() {
+        const that = this;
         throttle("resize", "optimizedResize");
         throttle("scroll", "optimizedScroll");
 
         // handle event
         window.addEventListener("optimizedResize", function() {
             console.log("Resource conscious resize callback!");
+            that.updatePositionAndSize();
         });
 
         window.addEventListener("optimizedScroll", function() {
-            const scrollOffset = getScrollOffsets();
-            console.log('scrollOffset', scrollOffset);
+            console.log("Resource conscious scroll callback!");
+            that.updatePositionAndSize();
         });
     }
 
