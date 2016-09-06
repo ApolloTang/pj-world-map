@@ -10,6 +10,20 @@ function getScrollOffsets() {
 }
 
 
+// ref: https://developer.mozilla.org/en-US/docs/Web/Events/resize
+function throttle(type, name, obj) {
+    obj = obj || window;
+    var running = false;
+    var func = function() {
+        if (running) { return; }
+        running = true;
+        requestAnimationFrame(function() {
+            obj.dispatchEvent(new CustomEvent(name));
+            running = false;
+        });
+    };
+    obj.addEventListener(type, func);
+};
 
 export default class WorldMap {
     getSelections(node_container) {
@@ -59,6 +73,28 @@ export default class WorldMap {
         }
     }
 
+    addListener() {
+        throttle("resize", "optimizedResize");
+        throttle("scroll", "optimizedScroll");
+
+        // handle event
+        window.addEventListener("optimizedResize", function() {
+            console.log("Resource conscious resize callback!");
+        });
+
+        window.addEventListener("optimizedScroll", function() {
+            const scrollOffset = getScrollOffsets();
+            console.log('scrollOffset', scrollOffset);
+        });
+    }
+
+    removeListener() {
+    }
+
+    destructor(){
+        this.removeListener();
+    }
+
     constructor(node_container) {
         window.w = this;
 
@@ -71,12 +107,9 @@ export default class WorldMap {
         const __s = this.__s;
         const __d = this.__d;
 
-        document.addEventListener('scroll', function(){
-            const scrollOffset = getScrollOffsets();
-            console.log('scrollOffset', scrollOffset);
-        });
+        this.addListener();
 
-        // __s.stage.call( // must bind zoom to the svg ( like bellow) not to the group (above), see: // http://bl.ocks.org/cpdean/7a71e687dd5a80f6fd57
+        // __s.stage.call( // must bind zoom to the svg not to the group, see: // http://bl.ocks.org/cpdean/7a71e687dd5a80f6fd57
         __s.svg.call(
             d3.behavior.zoom()
             .translate([0, 0])
@@ -98,7 +131,6 @@ export default class WorldMap {
         //     n_toolTip.style.left = `${coord_client.x}px`;
         //     n_toolTip.style.top = `${coord_client.y}px`;
         // }, false);
-
 
         // __s.stage.on('mousemove', function(e){
         //     var svgP = d3.mouse(this);
