@@ -26,7 +26,7 @@ function throttle(type, name, obj) {
 
 
 export default class WorldMap {
-    getSelections(node_container) {
+    getSelectionsAndNodes(node_container) {
         const __d = this.__d;
 
         const container = d3.select(node_container);
@@ -61,15 +61,21 @@ export default class WorldMap {
         const toolTip = container.append('div').classed('map-tool-tip', true).text('tool tip');
 
         return {
-            container,
-            svg,
-            featureColl,
-            stageWrap,
-            stageWrapBg,
-            stage,
-            stageBg,
-            featureColl,
-            toolTip
+            selections: {
+                container,
+                svg,
+                featureColl,
+                stageWrap,
+                stageWrapBg,
+                stage,
+                stageBg,
+                featureColl,
+                toolTip
+            },
+            nodes: {
+                container: node_container,
+                toolTip: toolTip.node(),
+            }
         }
     }
 
@@ -116,13 +122,12 @@ export default class WorldMap {
         window.w = this;
 
         //configuration
-        this.__d = dimensions;
+        const __d = this.__d = dimensions;
 
-        //d3 selection
-        this.__s = this.getSelections(node_container);
-
-        const __s = this.__s;
-        const __d = this.__d;
+        // generate common use selections and nodes
+        const selectionsAndNodes = this.getSelectionsAndNodes(node_container);
+        const __s = this.__s = selectionsAndNodes.selections;
+        const __n = this.__n = selectionsAndNodes.nodes;
 
         this.addListener();
 
@@ -137,7 +142,7 @@ export default class WorldMap {
             })
         );
 
-        const n_toolTip = __s.toolTip.node();
+        const n_toolTip = __n.toolTip; // __s.toolTip.node();
         n_toolTip.style.position = 'absolute';
 
         // __s.svg.node().addEventListener('mousemove',function(evt){
