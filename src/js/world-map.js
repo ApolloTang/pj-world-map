@@ -8,22 +8,28 @@ function getScrollOffsets() {
     if (w.pageXOffset != null) return {x: w.pageXOffset, y:w.pageYOffset};
 }
 
-
 // ref: https://developer.mozilla.org/en-US/docs/Web/Events/resize
 function throttle(type, name, obj) {
+    console.log(arguments)
     obj = obj || window;
     var running = false;
-    var func = function() {
+    var func = function(evt) {
         if (running) { return; }
         running = true;
         requestAnimationFrame(function() {
-            obj.dispatchEvent(new CustomEvent(name));
+            console.log('dfasfd')
+            obj.dispatchEvent(new CustomEvent(name, { 'detail': evt }));
             running = false;
         });
     };
     obj.addEventListener(type, func);
-};
+}
 
+function throttleEvent(type, name, cb, obj) {
+    obj = obj || window;
+    throttle(type, name, obj);
+    obj.addEventListener(name, cb);
+}
 
 export default class WorldMap {
     getSelectionsAndNodes(node_container) {
@@ -74,6 +80,7 @@ export default class WorldMap {
             },
             nodes: {
                 container: node_container,
+                svg: svg.node(),
                 toolTip: toolTip.node(),
             }
         }
@@ -94,21 +101,58 @@ export default class WorldMap {
         console.log('scrollOffset', scrollOffset);
     }
 
+    updateToolTipPositions() {
+    }
+
     addListener() {
         const that = this;
-        throttle("resize", "optimizedResize");
-        throttle("scroll", "optimizedScroll");
 
-        // handle event
-        window.addEventListener("optimizedResize", function() {
-            console.log("Resource conscious resize callback!");
-            that.updatePositionAndSize();
-        });
+        // // handle event
+        // throttle("resize", "optimizedResize");
+        // window.addEventListener("optimizedResize", function() {
+        //     console.log("Resource conscious resize callback!");
+        //     that.updatePositionAndSize();
+        // });
+        //
+        // throttle("scroll", "optimizedScroll");
+        // window.addEventListener("optimizedScroll", function() {
+        //     console.log("Resource conscious scroll callback!");
+        //     that.updatePositionAndSize();
+        // });
 
-        window.addEventListener("optimizedScroll", function() {
-            console.log("Resource conscious scroll callback!");
-            that.updatePositionAndSize();
-        });
+
+        // throttle("mousemove", "optimizedMousemove", this.__n.svg);
+        // this.__n.svg.addEventListener("optimizedMousemove", function(evt) {
+        //     const mouseEvent = evt.detail;
+        //     const coord_client = {
+        //         x:mouseEvent.clientX,
+        //         y:mouseEvent.clientY,
+        //     }
+        //     console.log("Resource conscious mousemove:", mouseEvent, coord_client);
+        // });
+
+        throttleEvent("resize", "optimizedResize", function(evt) {
+            console.log("Resource conscious resize callback!", evt.detail);
+            // that.updatePositionAndSize();
+        }, window);
+
+        throttleEvent("mousemove", "optimizedMousemove", function(evt) {
+            const mouseEvent = evt.detail;
+            const coord_client = {
+                x:mouseEvent.clientX,
+                y:mouseEvent.clientY,
+            }
+            console.log("Resource conscious mousemove:", mouseEvent, coord_client);
+        }, this.__n.svg);
+
+        // __s.svg.node().addEventListener('mousemove',function(evt){
+        //     const coord_client = {
+        //         x:evt.clientX,
+        //         y:evt.clientY,
+        //     }
+        //     n_toolTip.style.left = `${coord_client.x}px`;
+        //     n_toolTip.style.top = `${coord_client.y}px`;
+        // }, false);
     }
 
     removeListener() {
@@ -200,7 +244,7 @@ export default class WorldMap {
                 .append("path")
                 .attr("d", geoPath)
                 .attr("class", "countries")
-                .each(function(item, i){ console.log(i, item.id, item.properties.name) })
+                // .each(function(item, i){ console.log(i, item.id, item.properties.name) })
                 .on('mouseenter', function(d, i){
                     const selection_this = d3.select(this);
                     selection_this.classed('mouse-over', true);
