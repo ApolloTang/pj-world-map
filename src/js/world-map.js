@@ -8,6 +8,7 @@ function getScrollOffsets() {
     if (w.pageXOffset != null) return {x: w.pageXOffset, y:w.pageYOffset};
 }
 
+
 // ref: https://developer.mozilla.org/en-US/docs/Web/Events/resize
 function throttle(type, name, obj) {
     console.log(arguments)
@@ -132,7 +133,8 @@ export default class WorldMap {
         // });
 
         throttleEvent("resize", "optimizedResize", function(evt) {
-            console.log("Resource conscious resize callback!", evt.detail);
+            const resizeEvent = evt.detail;
+            console.log("Resource conscious resize callback!", resizeEvent);
             // that.updatePositionAndSize();
         }, window);
 
