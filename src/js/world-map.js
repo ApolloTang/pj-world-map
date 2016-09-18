@@ -2,34 +2,37 @@ import d3 from 'd3';
 import dimensions from './dimensions';
 
 
-// Return the current scrollbar offsets as the x and y properties
-function getScrollOffsets() {
-    const w = window;
-    if (w.pageXOffset != null) return {x: w.pageXOffset, y:w.pageYOffset};
-}
 
+function addOptimizedEventListener(nativeEventType, optimizedEventType, cb, obj) {
+    const throttle = function(_nativeEventType, _optimizedEventType, _obj) {
+        // ref: https://developer.mozilla.org/en-US/docs/Web/Events/resize
+        _obj = _obj || window;
+        var running = false;
+        var internalCb = function(evt) {
+            if (running) { return; }
+            running = true;
+            requestAnimationFrame(function() {
+                _obj.dispatchEvent( new CustomEvent( _optimizedEventType, { 'detail': evt }) );
+                running = false;
+            });
+        };
+        _obj.addEventListener(_nativeEventType, internalCb);
+        var _removeInternalHandler = function() {
+            _obj.removeEventListener(_nativeEventType, internalCb);
+        }
+        return _removeInternalHandler;
+    } // end throttle
 
-// ref: https://developer.mozilla.org/en-US/docs/Web/Events/resize
-function throttle(type, name, obj) {
-    console.log(arguments)
     obj = obj || window;
-    var running = false;
-    var func = function(evt) {
-        if (running) { return; }
-        running = true;
-        requestAnimationFrame(function() {
-            console.log('dfasfd')
-            obj.dispatchEvent(new CustomEvent(name, { 'detail': evt }));
-            running = false;
-        });
-    };
-    obj.addEventListener(type, func);
-}
+    var removeInternalHandler = throttle(nativeEventType, optimizedEventType, obj);
+    obj.addEventListener(optimizedEventType, cb);
 
-function throttleEvent(type, name, cb, obj) {
-    obj = obj || window;
-    throttle(type, name, obj);
-    obj.addEventListener(name, cb);
+    var removeHandler = function() {
+        obj.removeEventListener(optimizedEventType, cb);
+        removeInternalHandler();
+        return 'eventHandler "' + optimizedEventType + '" removed on '+obj;
+    }
+    return removeHandler;
 }
 
 export default class WorldMap {
@@ -108,37 +111,13 @@ export default class WorldMap {
     addListener() {
         const that = this;
 
-        // // handle event
-        // throttle("resize", "optimizedResize");
-        // window.addEventListener("optimizedResize", function() {
-        //     console.log("Resource conscious resize callback!");
-        //     that.updatePositionAndSize();
-        // });
-        //
-        // throttle("scroll", "optimizedScroll");
-        // window.addEventListener("optimizedScroll", function() {
-        //     console.log("Resource conscious scroll callback!");
-        //     that.updatePositionAndSize();
-        // });
-
-
-        // throttle("mousemove", "optimizedMousemove", this.__n.svg);
-        // this.__n.svg.addEventListener("optimizedMousemove", function(evt) {
-        //     const mouseEvent = evt.detail;
-        //     const coord_client = {
-        //         x:mouseEvent.clientX,
-        //         y:mouseEvent.clientY,
-        //     }
-        //     console.log("Resource conscious mousemove:", mouseEvent, coord_client);
-        // });
-
-        throttleEvent("resize", "optimizedResize", function(evt) {
+        this.__removeEventHandlers.optimizedResize = addOptimizedEventListener("resize", "optimizedResize", function(evt) {
             const resizeEvent = evt.detail;
-            console.log("Resource conscious resize callback!", resizeEvent);
+            console.log("Resource conscious resize: ", resizeEvent);
             // that.updatePositionAndSize();
         }, window);
 
-        throttleEvent("mousemove", "optimizedMousemove", function(evt) {
+        this.__removeEventHandlers.optimizedMousemove = addOptimizedEventListener("mousemove", "optimizedMousemove", function(evt) {
             const mouseEvent = evt.detail;
             const coord_client = {
                 x:mouseEvent.clientX,
@@ -146,6 +125,16 @@ export default class WorldMap {
             }
             console.log("Resource conscious mousemove:", mouseEvent, coord_client);
         }, this.__n.svg);
+
+        this.__removeEventHandlers.optimizedScroll = addOptimizedEventListener("scroll", "optimizedScroll", function(evt) {
+            const scrollEvent = evt.detail;
+            const getOffsets = function() {
+                // Return the current scrollbar offsets as the x and y properties
+                if (window.pageXOffset != null) return {x: window.pageXOffset, y:window.pageYOffset};
+            }
+            console.log("Resource conscious scroll: ", scrollEvent, getOffsets());
+            //     that.updatePositionAndSize();
+        }, window);
 
         // __s.svg.node().addEventListener('mousemove',function(evt){
         //     const coord_client = {
@@ -158,6 +147,9 @@ export default class WorldMap {
     }
 
     removeListener() {
+        console.log(this.__removeEventHandlers.optimizedMousemove() );
+        console.log(this.__removeEventHandlers.optimizedResize() );
+        console.log(this.__removeEventHandlers.optimizedScroll() );
     }
 
     destructor(){
@@ -175,6 +167,7 @@ export default class WorldMap {
         const __s = this.__s = selectionsAndNodes.selections;
         const __n = this.__n = selectionsAndNodes.nodes;
 
+        this.__removeEventHandlers = {};
         this.addListener();
 
         // __s.stage.call( // must bind zoom to the svg not to the group, see: // http://bl.ocks.org/cpdean/7a71e687dd5a80f6fd57
